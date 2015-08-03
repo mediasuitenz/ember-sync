@@ -196,7 +196,7 @@ test("#find - searches offline/online simultaneously, syncing online into offlin
           equal(item.get('createdAt').getDate(), (new Date).getDate(), "Offline date is correct");
           start();
 
-          offlineStore.find('cashEntry').then(function(records) {
+          offlineStore.findAll('cashEntry').then(function(records) {
             equal(records.get('length'), 1, "there is 1 cash entry in store");
           });
         }, function() {
@@ -420,7 +420,7 @@ test("#save - creates a record offline and enqueues online sync", function() {
       equal(newRecord.get('onSale'),         true,           "onSale is correct");
 
       Ember.run.later(function() {
-        var jobs = offlineStore.find('emberSyncQueueModel');
+        var jobs = offlineStore.findAll('ember-sync-queue-model');
 
         jobs.then(function(jobs) {
           equal(jobs.get('length'), 3, "One synchronization job is created");
@@ -526,7 +526,7 @@ test("#save deletes a record offline and then online if it's marked as so", func
 
     var TestDeleteJobsAreCreated = function() {
       return new Ember.RSVP.Promise(function(resolve, reject) {
-        var jobs = offlineStore.find('emberSyncQueueModel');
+        var jobs = offlineStore.findAll('ember-sync-queue-model');
 
         jobs.then(function(jobs) {
           var deletionJob = jobs.objectAt(0);
@@ -543,7 +543,7 @@ test("#save deletes a record offline and then online if it's marked as so", func
       return new Ember.RSVP.Promise(function(resolve, reject) {
         ok(!getModelLS('online', 'inventoryItem', generatedId));
 
-        equal(offlineStore.recordForId('inventoryItem', generatedId).get('currentState.stateName'), 'root.empty', "Record is deleted from offline DS.Store");
+        equal(offlineStore.getById('inventoryItem', generatedId).get('currentState.stateName'), 'root.empty', "Record is deleted from offline DS.Store");
         offlineStore.find('inventoryItem', generatedId).then(
           function() { ok(false, "Record is deleted from offline database"); resolve(); },
           function() { ok(true, "Record is deleted from offline database"); resolve(); }
@@ -606,7 +606,7 @@ test("#save operates a creation job even if offline record doesn't exist anymore
 
     var TestDeleteJobsAreCreated = function() {
       return new Ember.RSVP.Promise(function(resolve, reject) {
-        var jobs = offlineStore.find('emberSyncQueueModel');
+        var jobs = offlineStore.findAll('ember-sync-queue-model');
 
         jobs.then(function(jobs) {
           var creationJob = jobs.objectAt(0),
@@ -635,7 +635,7 @@ test("#save operates a creation job even if offline record doesn't exist anymore
           //FIXME
           //ok(!getModelLS('online', 'inventoryItem', generatedId), "Record is deleted online");
           //equal(getModelLS('online', 'inventoryItem'), 3, "There are 3 records online");
-          equal(offlineStore.recordForId('inventoryItem', generatedId).get('currentState.stateName'), 'root.empty', "Record is deleted from offline DS.Store");
+          equal(offlineStore.getById('inventoryItem', generatedId).get('currentState.stateName'), 'root.empty', "Record is deleted from offline DS.Store");
           offlineStore.find('inventoryItem', generatedId).then(function() {
             ok(false, "Record is deleted from offline database");
             resolve();
@@ -649,7 +649,7 @@ test("#save operates a creation job even if offline record doesn't exist anymore
 
     var TestJobsWereDeleted = function() {
       return new Ember.RSVP.Promise(function(resolve, reject) {
-        var jobs = offlineStore.find('emberSyncQueueModel');
+        var jobs = offlineStore.findAll('ember-sync-queue-model');
 
         jobs.then(function(jobs) {
           equal(jobs.get('length'), 0, "Jobs were run and deleted successfully!");

@@ -50,7 +50,7 @@ module("Unit - Lib/EmberSync/RecordForSynchronization", {
         total: "10",
         createdAt: createdAt
       });
-      jobRecordModel = offlineStore.createRecord('emberSyncQueueModel', {
+      jobRecordModel = offlineStore.createRecord('ember-sync-queue-model', {
         jobRecordType: "cart",
         serialized:    cart.serialize({includeId: true}),
         operation:     "create",
@@ -152,7 +152,7 @@ test("#createRecordInStore returns record that serialize dates", function() {
       total: "10",
       createdAt: now
     });
-    jobRecordModel = offlineStore.createRecord('emberSyncQueueModel', {
+    jobRecordModel = offlineStore.createRecord('ember-sync-queue-model', {
       jobRecordType: "cart",
       serialized: {
         id: cart.id,

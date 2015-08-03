@@ -245,7 +245,7 @@
 
         Em.run.cancel(queueTimer);
 
-        jobs = this.offlineStore.find('ember-sync-queue-model');
+        jobs = this.offlineStore.findAll('ember-sync-queue-model');
         jobs.then(function(jobs) {
           if (_this.get('debug')) {
             console.log("[DEBUG] EmberSync.Queue:", jobs.get('length')+" jobs found");
@@ -473,7 +473,7 @@
 
           preExisting = _this.onlineStore.hasRecordForId(type, id);
           if (preExisting) {
-            preExisting = _this.onlineStore.recordForId(type, id);
+            preExisting = _this.onlineStore.getById(type, id);
             preExisting.rollback();
             _this.onlineStore.unloadAll(type);
           }

@@ -48,7 +48,7 @@ module("Integration/Lib/EmberSync/Queue", {
 var StartQunit = function() { start(); }
 
 var assertNoJobsExist = function(recordId) {
-  var promise = offlineStore.findQuery('emberSyncQueueModel', {jobRecordId: recordId});
+  var promise = offlineStore.query('ember-sync-queue-model', {jobRecordId: recordId});
 
   return new Ember.RSVP.Promise(function(resolve, reject) {
     promise.then(function(found) {
@@ -96,7 +96,7 @@ test("#process pushes all jobs to the online store", function() {
       ok(false, "Cart is pushed to the online store");
       return Ember.RSVP.resolve();
     }).then(function() {
-      var findJob = offlineStore.findQuery('emberSyncQueueModel', {jobRecordId: recordId});
+      var findJob = offlineStore.query('ember-sync-queue-model', {jobRecordId: recordId});
 
       findJob.then(function() {
         ok(false, "Processed job is deleted");
@@ -205,7 +205,7 @@ test("#process retries processing on error if synchronization fails", function()
     var TestJobsExist = function() {
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Em.run.later(function() {
-          var jobs = offlineStore.findAll('emberSyncQueueModel');
+          var jobs = offlineStore.findAll('ember-sync-queue-model');
 
           jobs.then(function(jobs) {
             var job1 = jobs.objectAt(0),
