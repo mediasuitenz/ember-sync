@@ -6,15 +6,12 @@
   ],
   "dependencies": {
     "jquery": "1.9.1",
-    "ember": "1.9.1",
-    "ember-data": "1.0.0-beta.15"
+    "ember": "1.13.6",
+    "ember-data": "1.13.7"
   },
   "devDependencies": {
     "qunit": "",
     "ember-localstorage-adapter": "~0.5.2",
     "loader.js": "stefanpenner/loader.js#1.0.1"
-  },
-  "resolutions": {
-    "handlebars": ">= 2.0.0 < 3.0.0"
   }
 }

@@ -42,7 +42,8 @@ if (env === 'production') {
     ],
     legacyFilesToAppend: [
       'jquery.js',
-      'ember.js',
+      'ember.debug.js',
+      'ember-data.js',
       'localstorage_adapter.js',
     ],
     wrapInEval: true,
