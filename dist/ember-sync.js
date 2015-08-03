@@ -768,7 +768,7 @@
        *     }]
        *   }
        *
-       * where the object key is the record's typeKey.
+       * where the object key is the record's modelName.
        *
        * That way, when we have something to push into the store, we can use this
        * to figure out everything related to the main record.
@@ -778,7 +778,7 @@
        * @return {object}
        */
       pushableCollection: function() {
-        var mainRecordType = this._snapshot().typeKey,
+        var mainRecordType = this._snapshot().modelName,
             serializedMainRecord = this.serialize(this._snapshot());
 
         /**
@@ -797,7 +797,7 @@
       },
 
       serialize: function(snapshot) {
-        var type = snapshot.typeKey;
+        var type = snapshot.modelName;
         return this._serializer(type).serialize(snapshot, { includeId: true });
       },
 
@@ -818,7 +818,7 @@
 
           var pushToCollection = function(snapshot) {
             var serialized = _this.serialize(snapshot),
-                type = snapshot.typeKey;
+                type = snapshot.modelName;
 
             _this.setDateObjectsInsteadOfDateString(snapshot, serialized);
 
