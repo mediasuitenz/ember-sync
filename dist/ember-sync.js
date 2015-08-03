@@ -17,8 +17,8 @@
       /**
        *
        * This is called when a record is added from an online or offline store and
-       * pushed to the results array. This will be triggered when using the find or
-       * findQuery methods
+       * pushed to the results array. This will be triggered when using the find, 
+       * findAll, or query methods
        *
        * @method onRecordAddded
        */
@@ -85,20 +85,37 @@
       },
 
       /**
+       * Finds all records both offline and online, returning the first to be found.
+       * If online records are found, they are then pushed into the offline store,
+       * which should automatically update the references to the original records
+       * (if they were changed).
+       *
+       * Use this just like regular store's `findAll()`.
+       *
+       * @method findAll
+       * @param {string} type
+       * @param {object} query
+       * @return {Promise}
+       */
+      findAll: function(type) {
+        return this.find(type);
+      },
+
+      /**
        * Queries both online and offline stores simultaneously, returning values
        * asynchronously into a stream of results (Ember.A()).
        *
        * The records found online are stored into the offline store.
        *
-       * Use this just like regular store's `findQuery()`. Remember, though, it
+       * Use this just like regular store's `query()`. Remember, though, it
        * doesn't return a Promise, but you can use `.then()` even so.
        *
-       * @method findQuery
+       * @method query
        * @param {string} type
        * @param {object} query
        * @return {Ember.A}
        */
-      findQuery: function(type, query) {
+      query: function(type, query) {
         var _this = this;
         var syncQuery = Query.create({
           onlineStore:  this.onlineStore,
@@ -108,7 +125,7 @@
             _this.onRecordAdded(record, type);
           }
         });
-        return syncQuery.findQuery(type, query);
+        return syncQuery.query(type, query);
       },
 
       createRecord: function(type, properties) {
@@ -600,7 +617,7 @@
 
         existingRecord = this.onlineStore.hasRecordForId(recordType, recordId);
         if (existingRecord) {
-          existingRecord = this.onlineStore.recordForId(recordType, recordId);
+          existingRecord = this.onlineStore.getById(recordType, recordId);
           existingRecord.rollback();
           this.onlineStore.unloadAll(recordType);
         } else {
@@ -899,11 +916,11 @@
         var _this = this, offlineSearch, onlineSearch;
 
         if(!Ember.isNone(query)) {
-          offlineSearch = this.offlineStore.find(type, query),
-          onlineSearch  = this.onlineStore.find(type, query);
+          offlineSearch = this.offlineStore.query(type, query),
+          onlineSearch  = this.onlineStore.query(type, query);
         } else {
-          offlineSearch = this.offlineStore.find(type),
-          onlineSearch  = this.onlineStore.find(type);
+          offlineSearch = this.offlineStore.findAll(type),
+          onlineSearch  = this.onlineStore.findAll(type);
         }
 
         /**
@@ -960,17 +977,17 @@
        *
        * The records found online are stored into the offline store.
        *
-       * Use this just like regular store's `findQuery()`. Remember, though, it
+       * Use this just like regular store's `query()`. Remember, though, it
        * doesn't return a Promise, but you can use `.then()` even so.
        *
-       * @method findQuery
+       * @method query
        * @param {string} type
        * @param {object} query
        * @return {Ember.A}
        */
-      findQuery: function(type, query) {
-        var offlineSearch = this.offlineStore.findQuery(type, query),
-            onlineSearch  = this.onlineStore.findQuery(type, query);
+      query: function(type, query) {
+        var offlineSearch = this.offlineStore.query(type, query),
+            onlineSearch  = this.onlineStore.query(type, query);
 
         return this.findStream(type, offlineSearch, onlineSearch);
       },
@@ -980,17 +997,13 @@
        */
 
       /**
-       * Queries both online and offline stores simultaneously, returning values
-       * asynchronously into a stream of results (Ember.A()).
+       * Creates an array of results from the offline store, which is
+       * later updated with the results from the online store. 
        *
-       * The records found online are stored into the offline store.
-       *
-       * Use this just like regular store's `findQuery()`. Remember, though, it
-       * doesn't return a Promise, but you can use `.then()` even so.
-       *
-       * @method findQuery
+       * @method findStream
        * @param {string} type
-       * @param {object} query
+       * @param {object} offlinePromise
+       * @param {object} onlinePromise
        * @return {Ember.A}
        */
       findStream: function(type, offlinePromise, onlinePromise) {
