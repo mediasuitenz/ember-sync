@@ -38,7 +38,7 @@ test("#process runs only once, even if called multiple times", function() {
   Em.run(function() {
     offlineStoreDouble = {
       modelFor: function() { },
-      find: function() {
+      findAll: function() {
         return new Ember.RSVP.Promise(function(resolve, reject) {
           resolve([1, 2]);
         });

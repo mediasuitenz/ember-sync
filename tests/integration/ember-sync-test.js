@@ -33,10 +33,10 @@ module("Integration/Lib/EmberSync", {
     });
 
     env = setupOfflineOnlineStore({
-      inventoryItem: InventoryItem,
-      cashEntry: CashEntry,
-      cartItem: CartItem,
-      emberSyncQueueModel: EmberSyncQueueModel
+      'inventory-item': InventoryItem,
+      'cash-entry': CashEntry,
+      'cart-item': CartItem,
+      'ember-sync-queue-model': EmberSyncQueueModel
     });
 
     offlineStore = env.store;
@@ -58,7 +58,7 @@ var StartQunit = function() { start(); }
 
 var assertItemDoesntExistOffline = function(type, id) {
   var assertMessage = "No item exists offline for id "+id,
-      queryFunction = (!!parseInt(id) ? 'find' : 'findQuery');
+      queryFunction = (!!parseInt(id) ? 'find' : 'query');
 
   return offlineStore[queryFunction](type, id).then(function(item) {
     console.error("Record for "+type+" should be in the offline store");
@@ -73,7 +73,7 @@ var assertItemDoesntExistOffline = function(type, id) {
 
 var assertItemExistsOffline = function(type, id) {
   var assertMessage = ""+type+" record was found for id "+id,
-      queryFunction = (!!parseInt(id) ? 'find' : 'findQuery');
+      queryFunction = (!!parseInt(id) ? 'find' : 'query');
 
   return offlineStore[queryFunction](type, id).then(function(item) {
     ok(true, assertMessage);
@@ -268,7 +268,7 @@ test("#find - injects emberSync into the returned records", function() {
   });
 });
 
-test("#findQuery searches offline/online simultaneously, syncing online into offline and returning a stream of data", function() {
+test("#query searches offline/online simultaneously, syncing online into offline and returning a stream of data", function() {
   var item, duplicatedItem, fixture;
 
   fixture = JSON.stringify({
@@ -314,7 +314,7 @@ test("#findQuery searches offline/online simultaneously, syncing online into off
     }).then(function(item) {
       return assertItemExistsOffline('inventoryItem', {name: "Fender"});
     }).then(function() {
-      return emberSync.findQuery('inventoryItem', {name: "Fender"});
+      return emberSync.query('inventoryItem', {name: "Fender"});
     }).then(function(items) {
       equal(items.length, 0, "At first, an empty array of results is returned");
 
@@ -343,7 +343,7 @@ test("#findQuery searches offline/online simultaneously, syncing online into off
   });
 });
 
-test("#findQuery - injects emberSync into the returned records", function() {
+test("#query - injects emberSync into the returned records", function() {
   var onlineFixture = JSON.stringify({
     inventoryItem: {
       records: {
@@ -363,7 +363,7 @@ test("#findQuery - injects emberSync into the returned records", function() {
 
   stop();
 
-  var records = emberSync.findQuery('inventoryItem', { name: 'Fender' });
+  var records = emberSync.query('inventoryItem', { name: 'Fender' });
   Em.run.later(function() {
     equal(records.length, 2, "Two records are found");
     ok(records.objectAt(0).emberSync, "record returned from online store has emberSync injected");

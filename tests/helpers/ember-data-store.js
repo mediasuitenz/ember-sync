@@ -30,14 +30,23 @@ var setupStore = function(options) {
   return env;
 };
 
+function convertKeys (opts) {
+  var temp = {};
+  Object.keys(opts).forEach(function (key) {
+    temp[Ember.String.dasherize(key)] = opts[key];
+  })
+
+  return temp;
+}
+
 /**
  * Used to build an env/container with offline and online stores.
  */
 var setupOfflineOnlineStore = function(opts) {
-  var env, adapter;
+  var env;
 
-  opts["serializer"] = DS.LSSerializer;
-  opts["adapter"] = DS.LSAdapter.extend({
+  opts['serializer'] = DS.LSSerializer;
+  opts['adapter'] = DS.LSAdapter.extend({
     namespace: 'offlineStore',
     defaultSerializer: DS.LSSerializer
   });
