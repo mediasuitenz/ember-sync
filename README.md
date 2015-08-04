@@ -39,7 +39,7 @@ Whenever you search something, Ember Sync will automatically
 query concurrently both offline and online stores and merge the results into
 a single Ember array.
 
-This means that `findQuery` returns an `Ember.A()` right away instead of a
+This means that `query` returns an `Ember.A()` right away instead of a
 promise. If 2 seconds later a response comes from the REST api, Ember Sync
 will push new records to that array that was already being shown in the
 template. This mimics how streams work.
@@ -66,7 +66,7 @@ For Ember runtime, we'll use Ember CLI.
 ##### Ember CLI < 0.0.37
 1. Add `"ember-sync": "^0.1.0"` as a dependency in your `bower.json` file.
 
-2. Add the following to you `Brofile.js` and restart your server:
+2. Add the following to you `Brocfile.js` and restart your server:
 
     ```js
     app.import('vendor/ember-sync/dist/ember-sync.js', { 'ember-sync': [ 'default' ] });
@@ -212,17 +212,17 @@ export default Ember.Route.extend({
 To find records, just do:
 
 ```js
-users = this.emberSync.findQuery('user', {name: 'Robinson Crusoe'});
+users = this.emberSync.query('user', {name: 'Robinson Crusoe'});
 ```
 
 This will automatically search for that user in both offline and online stores.
-Remember that `findQuery` doesn't return a promise, but `Ember.A()` instead.
+Remember that `query` doesn't return a promise, but `Ember.A()` instead.
 For instance, if a record is found offline in 50 miliseconds, it'll show up in your template
 right away. If another record is then found in your RESTAdapter-based store 3
 seconds later, the
 array is automatically populated, simulating streams.
 
-Instead of `findQuery`, you can use `find` as well, but it will return a
+Instead of `query`, you can use `find` as well, but it will return a
 Promise:
 
 ```js
@@ -240,7 +240,7 @@ record.emberSync.save();
 
 ### Synchronization during download
 
-When doing `findQuery` or `find`, Ember Sync will automatically save the records
+When doing `query` or `find`, Ember Sync will automatically save the records
 found online in the offline store.
 
 ### Conflict resolution and how records are synchronized
