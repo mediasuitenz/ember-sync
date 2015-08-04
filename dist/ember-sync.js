@@ -1145,7 +1145,7 @@
             var serialized = recordForSynchronization[typeKey][index],
                 model;
 
-            model = this.offlineStore.push(typeKey, serialized);
+            model = this.offlineStore.push(serialized);
             model.save();
           }
         }
