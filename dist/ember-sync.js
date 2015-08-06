@@ -1055,18 +1055,30 @@
        * @param {DS.Model} record
        */
       addResultToResultStream: function(resultStream, results) {
+        resultStream.set('isUpdating', true);
         var _this = this;
         if (results.get('length')) {
-          results.forEach(function(record) {
-            var id = record.get('id'),
-                duplicatedId = resultStream.mapBy("id").contains(id);
+          // Improve performance for large datasets
+          var resultsById = {};
+          if (resultStream.get('length') !== 0) {
+            resultStream.forEach(function (record) {
+              if (record.get('id')) {
+                resultsById[record.get('id')] = record;
+              }
+            });
+          }
 
-            if (id && (!resultStream.length || !duplicatedId)) {
+          results.forEach(function(record) {
+            var id = record.get('id');
+
+            if (id && !resultStream[id]) {
               _this.onRecordAdded(record);
               resultStream.pushObject(record);
             }
           });
         }
+        resultStream.set('isUpdating', false);
+        resultStream.set('isLoaded', true);
       },
 
       toArray: function(objectOrArray) {
@@ -1078,13 +1090,11 @@
     });
   });
 ;define("ember-sync/persistence", 
-  ["ember-sync/store-initialization-mixin","ember-sync/record-for-synchronization","ember-sync/queue","ember-sync/store/record","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-sync/store-initialization-mixin","ember-sync/queue","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var StoreInitMixin = __dependency1__["default"];
-    var RecordForSynchronization = __dependency2__["default"];
-    var Queue = __dependency3__["default"];
-    var StoreRecord = __dependency4__["default"];
+    var Queue = __dependency2__["default"];
 
     __exports__["default"] = Ember.Object.extend(
       StoreInitMixin, {
@@ -1102,11 +1112,10 @@
             operation      = this.persistenceOperation(record),
             offlinePromise = record.save(),
             type           = record.emberSync.get('recordType'),
-            properties     = record.emberSync.get('recordProperties') || {},
-            isNew          = record.get('isNew');
+            properties     = record.emberSync.get('recordProperties') || {};
 
         offlinePromise.then(function(offlineRecord) {
-          var onlineRecord, job, queue;
+          var queue;
 
           properties = offlineRecord.serialize({includeId: true});
 
@@ -1127,45 +1136,24 @@
        * @param {string} type
        * @param {DS.Model} record
        */
-      persistRecordOffline: function(type, record) {
-        var offlineSerializer = this.offlineStore.serializerFor(type),
-            snapshot = record._createSnapshot(),
-            serialized = offlineSerializer.serialize(snapshot, { includeId: true }),
-            recordForSynchronization;
+      persistRecordOffline: function (type, record) {
+        var snapshot = record._createSnapshot();
+        var offlineSerializer = this.offlineStore.serializerFor(type);
+        var serialized = offlineSerializer.serialize(snapshot, { includeId: true });
 
-        recordForSynchronization = StoreRecord.create({
-          store: this.offlineStore,
-          snapshot: snapshot
-        }).pushableCollection();
-
-        for (var typeKey in recordForSynchronization) {
-          if (!recordForSynchronization.hasOwnProperty(typeKey)) {
-            continue;
-          }
-
-          for (var index in recordForSynchronization[typeKey]) {
-            if (!recordForSynchronization[typeKey].hasOwnProperty(index)) {
-              continue;
-            }
-
-            var serialized = recordForSynchronization[typeKey][index],
-                model;
-
-            model = this.offlineStore.push(this.offlineStore.normalize(type, serialized.data));
-            model.save();
-          }
-        }
+        var model = this.offlineStore.push(this.offlineStore.normalize(type, serialized.data));
+        model.save();
       },
 
       persistenceOperation: function(record) {
-        if (record.get('currentState.stateName') == "root.deleted.uncommitted") {
-          return "delete";
+        if (record.get('currentState.stateName') === 'root.deleted.uncommitted') {
+          return 'delete';
         } else if (record.get('isNew')) {
-          return "create";
+          return 'create';
         } else {
-          return "update";
+          return 'update';
         }
-      },
+      }
     });
   });
 ;define("ember-sync/ember-sync-queue-model", 
